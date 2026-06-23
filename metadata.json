@@ -1,0 +1,6 @@
+{
+  "name": "FL Streams Free",
+  "description": "Live streaming website for football and sports with real-time schedules and automated live embed capability.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
