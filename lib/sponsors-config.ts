@@ -25,7 +25,7 @@ export const SPONSOR_CONFIG = {
     enabled: true,
     // Jika true, gunakan Adsterra jika tidak ada custom sponsor. 
     // Jika false, hanya gunakan custom sponsor / placeholder "Taruh Iklan Di Sini".
-    useAdsterraFallback: false,
+    useAdsterraFallback: true,
     adsterraType: "banner160x600" as const,
     
     // --- Detail Custom Sponsor (Jika ada yang menyewa) ---
@@ -38,7 +38,7 @@ export const SPONSOR_CONFIG = {
   // 2. Banner Samping Kanan (Skyscraper Kanan)
   sidebarRight: {
     enabled: true,
-    useAdsterraFallback: false,
+    useAdsterraFallback: true,
     adsterraType: "banner160x600" as const,
     
     // --- Detail Custom Sponsor (Jika ada yang menyewa) ---
@@ -57,7 +57,7 @@ export const SPONSOR_CONFIG = {
     allowClose: true,
     
     // --- Detail Custom Sponsor ---
-    useAdsterraFallback: false,
+    useAdsterraFallback: true,
     adsterraType: "banner300x250" as const,
     hasCustomSponsor: false, // Set ke true jika slot ini disewa
     imageUrl: "",            // URL gambar banner popup (rekomendasi ratio persegi / horizontal)
