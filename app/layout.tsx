@@ -44,6 +44,9 @@ export const metadata: Metadata = {
   icons: {
     icon: 'https://ml5dafx6yq9i.i.optimole.com/w:auto/h:auto/q:auto/id:4f5fe1b69ca5191416e0e459d2f19f01/directUpload/ChatGPT_Image_Jun_23__2026__10_26_40_PM.png',
   },
+  verification: {
+    google: 'adVNAT7PjGq7dJJbIR7GlHLhvLsSbcb8a3nZAjSLIg0',
+  },
 };
 
 export default function RootLayout({
