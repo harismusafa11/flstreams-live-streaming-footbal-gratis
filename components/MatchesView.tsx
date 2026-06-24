@@ -111,7 +111,8 @@ export default function MatchesView({ initialMatches }: { initialMatches: Match[
     if (match.status === 'LIVE') return true;
     const startTime = new Date(match.startTime);
     if (mounted && currentTime) {
-      if (match.status === 'SCHEDULED' && currentTime >= startTime) return true;
+      const fiveMinsBefore = new Date(startTime.getTime() - 5 * 60 * 1000);
+      if (match.status === 'SCHEDULED' && currentTime >= fiveMinsBefore) return true;
     }
     return false;
   };

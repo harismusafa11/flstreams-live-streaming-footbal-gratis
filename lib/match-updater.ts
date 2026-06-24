@@ -9,12 +9,13 @@ export async function autoUpdateMatchStatuses() {
     const supabaseAdmin = getSupabaseAdmin();
     const now = new Date().toISOString();
 
-    // Update semua pertandingan yang statusnya SCHEDULED dan startTime <= waktu sekarang
+    // Update semua pertandingan yang statusnya SCHEDULED dan startTime <= waktu sekarang + 5 menit
+    const nowPlus5Mins = new Date(Date.now() + 5 * 60 * 1000).toISOString();
     const { error: liveError } = await supabaseAdmin
       .from('matches')
       .update({ status: 'LIVE' })
       .eq('status', 'SCHEDULED')
-      .lte('startTime', now);
+      .lte('startTime', nowPlus5Mins);
 
     if (liveError) {
       console.error('[Auto-Update] Error update ke LIVE:', liveError.message);
