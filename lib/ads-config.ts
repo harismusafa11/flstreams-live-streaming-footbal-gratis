@@ -13,22 +13,22 @@ export const ADSTERRA_CONFIG = {
   // Anda hanya perlu menyalin Key Hexadecimal-nya saja di sini.
   popunder: {
     enabled: true,
-    key: "YOUR_ADSTERRA_POPUNDER_KEY", // Ganti dengan Key Popunder Anda nanti
+    key: "cf78ef4bc930bb834c8bcea2b7e75109", // Ganti dengan Key Popunder Anda nanti
   },
 
   // 2. Social Bar Adsterra
   // Script interaktif melayang yang sangat disukai visitor streaming bola
   socialBar: {
     enabled: true,
-    key: "YOUR_ADSTERRA_SOCIAL_BAR_KEY", // Ganti dengan Key Social Bar Anda nanti
+    key: "96ce7cdeb0ea8d7051c90f33aa02e5d9", // Ganti dengan Key Social Bar Anda nanti
   },
 
   // 3. Banner Ads (Bisa diletakkan di berbagai bagian halaman)
   // Contoh key default untuk display banner standard
   banners: {
-    banner468x60: "YOUR_ADSTERRA_BANNER_468X60_KEY", // Banner Header
-    banner728x90: "YOUR_ADSTERRA_BANNER_728X90_KEY", // Banner Di Atas Player
-    banner300x250: "YOUR_ADSTERRA_BANNER_300X250_KEY", // Banner Sidebar / Di Bawah Player
-    banner160x600: "YOUR_ADSTERRA_BANNER_160X600_KEY"  // Banner Vertikal Kiri/Kanan
+    banner468x60: "fe37e1a7f98d3449911fb6a327cfbfd6", // Banner Header
+    banner728x90: "a90d6bab75e89e072c78f8b6a4e22223", // Banner Di Atas Player
+    banner300x250: "f6abcfb2f5ba24a6004400d2ef90b40a", // Banner Sidebar / Di Bawah Player
+    banner160x600: "c9691653f250aed2627b8e607c2b28ae"  // Banner Vertikal Kiri/Kanan
   }
 };
