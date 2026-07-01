@@ -33,6 +33,13 @@ type Match = {
   startTime: string;
   embedCode: string;
   status: string;
+  matchStreams?: {
+    id: string;
+    serverName: string;
+    embedCode: string;
+    isPrimary: boolean;
+    status: string;
+  }[];
 };
 
 // Seeding monochrome premium accent for fallback badges instead of distracting AI rainbow gradients
@@ -62,11 +69,25 @@ function getTeamInitials(teamName: string) {
 }
 
 export default function LiveMatchClient({ match }: { match: Match }) {
-  // Parse servers from embedCode separated by newlines
-  const rawEmbeds = match.embedCode.split('\n').filter((c: string) => c.trim().length > 0);
-  const servers = rawEmbeds.length > 0 ? rawEmbeds : [match.embedCode];
+  // Parse servers from matchStreams or fallback to embedCode separated by newlines
+  const activeStreams = match.matchStreams 
+    ? match.matchStreams.filter((s: any) => s.status === 'ACTIVE') 
+    : [];
+
+  const servers = activeStreams.length > 0
+    ? activeStreams.map((s: any) => s.embedCode)
+    : (match.embedCode ? match.embedCode.split('\n').filter((c: string) => c.trim().length > 0) : ['']);
   
-  const [activeServer, setActiveServer] = useState(0);
+  // Find index of primary server if using matchStreams
+  let initialActiveServer = 0;
+  if (activeStreams.length > 0) {
+    const primaryIdx = activeStreams.findIndex((s: any) => s.isPrimary);
+    if (primaryIdx !== -1) {
+      initialActiveServer = primaryIdx;
+    }
+  }
+
+  const [activeServer, setActiveServer] = useState(initialActiveServer);
   const [mounted, setMounted] = useState(false);
   
   // Custom design features
@@ -345,7 +366,9 @@ export default function LiveMatchClient({ match }: { match: Match }) {
                   }`}
                 >
                   <div className="flex items-center justify-between pointer-events-none">
-                    <span className="text-xs font-extrabold">Server {idx + 1}</span>
+                    <span className="text-xs font-extrabold">
+                      {activeStreams.length > 0 ? activeStreams[idx].serverName : `Server ${idx + 1}`}
+                    </span>
                     <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-red-500' : 'bg-emerald-500'} animate-pulse`} />
                   </div>
                   <div className="mt-2 text-[10px] pointer-events-none flex flex-col">

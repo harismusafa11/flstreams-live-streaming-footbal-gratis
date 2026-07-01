@@ -18,6 +18,7 @@ type Match = {
   embedCode: string;
   status: string;
   isFeatured?: boolean;
+  slug: string;
 };
 
 // Seeded gradient for team avatars generator
@@ -338,7 +339,7 @@ export default function MatchesView({ initialMatches }: { initialMatches: Match[
                           <Countdown targetDate={start} />
                         ) : (
                           <Link 
-                            href={`/live/${match.id}`}
+                            href={`/match/${match.slug || match.id}`}
                             className="bg-red-600 hover:bg-red-700 text-white rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all inline-flex items-center space-x-1"
                           >
                             <PlayCircle className="w-3.5 h-3.5" /> <span>Tonton Live</span>
@@ -413,7 +414,7 @@ export default function MatchesView({ initialMatches }: { initialMatches: Match[
                         <Countdown targetDate={start} />
                       ) : (
                         <Link 
-                          href={`/live/${match.id}`}
+                          href={`/match/${match.slug || match.id}`}
                           className="bg-white hover:bg-zinc-200 text-black rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition-all duration-200 hover:scale-[1.03] shadow-md flex items-center space-x-1.5"
                         >
                           <PlayCircle className="w-4 h-4 text-red-600 animate-pulse" />
@@ -547,7 +548,7 @@ export default function MatchesView({ initialMatches }: { initialMatches: Match[
                         </div>
                       ) : (
                         <Link 
-                          href={`/live/${match.id}`}
+                          href={`/match/${match.slug || match.id}`}
                           className="w-full flex items-center justify-center space-x-2 bg-white text-black hover:bg-zinc-200 font-extrabold py-3 px-4 rounded-xl transition-all duration-200 shadow-md hover:scale-[1.01] active:scale-[0.99]"
                         >
                           <PlayCircle className="w-4 h-4 text-red-600 animate-pulse" />

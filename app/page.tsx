@@ -1,5 +1,5 @@
 // app/page.tsx
-import { getSupabaseAdmin } from '@/lib/supabase';
+import { MatchService } from '@/lib/services/MatchService';
 import MatchesView from '@/components/MatchesView';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,12 +15,23 @@ export default async function HomePage() {
   // Jalankan auto-update status pertandingan sesuai jadwal sebelum mengambil data
   await autoUpdateMatchStatuses();
 
-  const { data: matches } = await getSupabaseAdmin()
-    .from('matches')
-    .select('*')
-    .neq('status', 'COMPLETED')
-    .order('isFeatured', { ascending: false })
-    .order('startTime', { ascending: true });
+  const allMatches = await MatchService.getAllMatches();
+  const activeMatches = allMatches.filter((m: any) => m.status !== 'COMPLETED');
+
+  // Map to format expected by MatchesView, including slug
+  const matches = activeMatches.map((m: any) => ({
+    id: m.id,
+    homeTeam: m.homeTeam?.name || 'Home Team',
+    awayTeam: m.awayTeam?.name || 'Away Team',
+    homeLogo: m.homeTeam?.logo || null,
+    awayLogo: m.awayTeam?.logo || null,
+    competition: m.league?.name || 'Elite Football',
+    startTime: m.startTime,
+    embedCode: m.matchStreams ? m.matchStreams.map((s: any) => s.embedCode).join('\n') : '',
+    status: m.status,
+    isFeatured: m.isFeatured,
+    slug: m.seoMetadata?.slug || '',
+  }));
 
   return (
     <div className="min-h-screen bg-[#070709] text-zinc-150 selection:bg-red-600/30 selection:text-white">
