@@ -27,6 +27,7 @@ export const SPONSOR_CONFIG = {
     // Jika false, hanya gunakan custom sponsor / placeholder "Taruh Iklan Di Sini".
     useAdsterraFallback: true,
     adsterraType: "banner160x600" as const,
+    adsterraKey: "", // Opsional: isi key khusus banner kiri. Kosong = pakai key banner160x600 di ads-config.ts.
     
     // --- Detail Custom Sponsor (Jika ada yang menyewa) ---
     hasCustomSponsor: false, // Set ke true jika slot ini disewa
@@ -40,6 +41,7 @@ export const SPONSOR_CONFIG = {
     enabled: true,
     useAdsterraFallback: true,
     adsterraType: "banner160x600" as const,
+    adsterraKey: "", // Opsional: isi key khusus banner kanan. Kosong = pakai key banner160x600 di ads-config.ts.
     
     // --- Detail Custom Sponsor (Jika ada yang menyewa) ---
     hasCustomSponsor: false, // Set ke true jika slot ini disewa
@@ -59,6 +61,7 @@ export const SPONSOR_CONFIG = {
     // --- Detail Custom Sponsor ---
     useAdsterraFallback: true,
     adsterraType: "banner300x250" as const,
+    adsterraKey: "", // Opsional: isi key khusus popup. Kosong = pakai key banner300x250 di ads-config.ts.
     hasCustomSponsor: false, // Set ke true jika slot ini disewa
     imageUrl: "",            // URL gambar banner popup (rekomendasi ratio persegi / horizontal)
     linkUrl: "",             // Link tujuan iklan
@@ -74,6 +77,7 @@ export const SPONSOR_CONFIG = {
     enabled: true,
     useAdsterraFallback: true,
     adsterraType: "banner728x90" as const, // Gunakan fallback 728x90 ke Adsterra jika tidak diisi custom
+    adsterraKey: "", // Opsional: isi key khusus banner bawah. Kosong = pakai key banner728x90 di ads-config.ts.
     
     // --- Detail Custom Sponsor (Jika ada yang menyewa) ---
     hasCustomSponsor: false, // Set ke true jika slot ini disewa
@@ -87,6 +91,7 @@ export const SPONSOR_CONFIG = {
     enabled: true,
     useAdsterraFallback: true,
     adsterraType: "banner300x250" as const, // Gunakan fallback 300x250 Adsterra jika tidak diisi custom
+    adsterraKey: "", // Opsional: isi key khusus banner bawah player. Kosong = pakai key banner300x250 di ads-config.ts.
     
     // --- Detail Custom Sponsor ---
     hasCustomSponsor: false, // Set ke true jika slot ini disewa

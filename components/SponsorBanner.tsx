@@ -97,7 +97,14 @@ export function SponsorBanner({ slot, width, height, label = "SPONSOR" }: Sponso
         ) : slotConfig.useAdsterraFallback ? (
           /* Fallback ke Adsterra Banner jika diaktifkan */
           <div className="w-full flex justify-center">
-            <AdsterraBanner type={slotConfig.adsterraType} width={width} height={height} label={false} />
+            <AdsterraBanner
+              type={slotConfig.adsterraType}
+              width={width}
+              height={height}
+              label={false}
+              adKey={slotConfig.adsterraKey}
+              slotId={slot}
+            />
           </div>
         ) : (
           /* TARUH IKLAN BANNER DISINI PLACEHOLDER (Horizontal) */

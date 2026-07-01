@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/admin/',
     },
-    sitemap: 'https://flstreams.com/sitemap.xml',
+    sitemap: 'https://flstreams.my.id/sitemap.xml',
   }
 }

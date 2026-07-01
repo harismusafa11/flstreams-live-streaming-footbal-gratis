@@ -99,7 +99,14 @@ export function SponsorSidebars() {
               )
             ) : SPONSOR_CONFIG.sidebarLeft.useAdsterraFallback ? (
               <div className="w-[160px]">
-                <AdsterraBanner type="banner160x600" width={160} height={600} label={false} />
+                <AdsterraBanner
+                  type={SPONSOR_CONFIG.sidebarLeft.adsterraType}
+                  width={160}
+                  height={600}
+                  label={false}
+                  adKey={SPONSOR_CONFIG.sidebarLeft.adsterraKey}
+                  slotId="sidebar-left"
+                />
               </div>
             ) : (
               /* PASANG IKLAN DISINI PLACEHOLDER */
@@ -183,7 +190,14 @@ export function SponsorSidebars() {
               )
             ) : SPONSOR_CONFIG.sidebarRight.useAdsterraFallback ? (
               <div className="w-[160px]">
-                <AdsterraBanner type="banner160x600" width={160} height={600} label={false} />
+                <AdsterraBanner
+                  type={SPONSOR_CONFIG.sidebarRight.adsterraType}
+                  width={160}
+                  height={600}
+                  label={false}
+                  adKey={SPONSOR_CONFIG.sidebarRight.adsterraKey}
+                  slotId="sidebar-right"
+                />
               </div>
             ) : (
               /* PASANG IKLAN DISINI PLACEHOLDER */

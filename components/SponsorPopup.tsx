@@ -147,6 +147,8 @@ export function SponsorPopup() {
                   width={300} 
                   height={250} 
                   label={false} 
+                  adKey={SPONSOR_CONFIG.popup.adsterraKey}
+                  slotId="popup"
                 />
               </div>
             ) : (
