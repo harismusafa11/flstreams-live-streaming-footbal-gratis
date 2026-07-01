@@ -240,7 +240,7 @@ export default function LiveMatchClient({ match }: { match: Match }) {
         <div className="flex flex-col gap-4">
           
           {/* Broadcaster Controller Toolbar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-900/50 p-4 rounded-2xl border border-white/[0.06] backdrop-blur-md shadow-lg">
+          <div data-no-popup className="player-controls flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-900/50 p-4 rounded-2xl border border-white/[0.06] backdrop-blur-md shadow-lg">
             
             {/* Server Controls Label */}
             <div className="flex items-center space-x-2.5">
@@ -253,9 +253,10 @@ export default function LiveMatchClient({ match }: { match: Match }) {
               
               {/* Refresh stream button */}
               <button
+                data-no-popup
                 onClick={handleRefreshStream}
                 disabled={isRefreshing}
-                className="p-2 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:text-white text-zinc-400 transition-all flex items-center justify-center"
+                className="refresh-btn p-2 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:text-white text-zinc-400 transition-all flex items-center justify-center"
                 title="Muat Ulang Pemutar Video"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-400' : ''}`} />
@@ -263,8 +264,9 @@ export default function LiveMatchClient({ match }: { match: Match }) {
 
               {/* Lights switch */}
               <button
+                data-no-popup
                 onClick={() => setIsLightsOff(!isLightsOff)}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border transition-all text-xs font-bold uppercase tracking-wider ${
+                className={`lights-btn flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border transition-all text-xs font-bold uppercase tracking-wider ${
                   isLightsOff 
                     ? 'bg-zinc-800 text-white border-white/20' 
                     : 'bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10 hover:text-white'
@@ -277,8 +279,9 @@ export default function LiveMatchClient({ match }: { match: Match }) {
 
               {/* Theater switch */}
               <button
+                data-no-popup
                 onClick={() => setIsTheaterMode(!isTheaterMode)}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border transition-all text-xs font-bold uppercase tracking-wider ${
+                className={`theater-btn flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border transition-all text-xs font-bold uppercase tracking-wider ${
                   isTheaterMode 
                     ? 'bg-zinc-800 text-white border-white/20' 
                     : 'bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10 hover:text-white'
@@ -358,8 +361,9 @@ export default function LiveMatchClient({ match }: { match: Match }) {
               return (
                 <button
                   key={idx}
+                  data-no-popup
                   onClick={() => setActiveServer(idx)}
-                  className={`p-3.5 rounded-2xl transition-all duration-200 text-left border flex flex-col justify-between ${
+                  className={`server-button p-3.5 rounded-2xl transition-all duration-200 text-left border flex flex-col justify-between ${
                     isActive 
                       ? 'bg-white text-zinc-950 border-white shadow-xl scale-[1.01]' 
                       : 'bg-zinc-900/60 text-zinc-400 border-white/[0.04] hover:bg-zinc-900 hover:text-white'
@@ -398,9 +402,10 @@ export default function LiveMatchClient({ match }: { match: Match }) {
               
               <button
                 type="button"
+                data-no-popup
                 onClick={runDiagnostics}
                 disabled={diagnosticStatus === 'testing'}
-                className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/5 hover:border-white/10 text-xs font-bold text-zinc-300 transition-all shrink-0 flex items-center space-x-1.5"
+                className="refresh-btn px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/5 hover:border-white/10 text-xs font-bold text-zinc-300 transition-all shrink-0 flex items-center space-x-1.5"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${diagnosticStatus === 'testing' ? 'animate-spin text-cyan-400' : ''}`} />
                 <span>{diagnosticStatus === 'testing' ? 'Memindai...' : 'Uji Sinyal Siaran'}</span>
