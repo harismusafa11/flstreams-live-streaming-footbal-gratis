@@ -432,7 +432,7 @@ export default function WatchClient({
                 Mengalami kendala pemutar kosong? Gunakan Server HLS kami!
               </h4>
               <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">
-                Beberapa browser memblokir penayangan langsung (iframe) dari situs streaming eksternal karena kebijakan keamanan atau CORS. Anda bisa mengganti server pilihan di bawah, atau klik tombol <span className="text-emerald-400 font-semibold">Buka di Tab Baru</span> untuk langsung menyaksikan tanpa gangguan.
+                Beberapa browser memblokir penayangan langsung (iframe) dari situs streaming eksternal karena kebijakan keamanan atau CORS. Anda bisa mengganti server pilihan di bawah untuk memuat player yang aman.
               </p>
             </div>
           </div>
@@ -483,17 +483,6 @@ export default function WatchClient({
 
               {/* Action buttons under switcher */}
               <div className="mt-4 flex flex-wrap items-center gap-2 pt-4 border-t border-slate-800/40">
-                <a
-                  href={activeStream?.embedUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-emerald-400 text-xs font-bold rounded-lg transition-colors cursor-pointer"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                  Buka di Tab Baru (Anti-Blokir)
-                </a>
                 <button
                   onClick={() => setTheaterMode((v) => !v)}
                   className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-bold rounded-lg transition-colors cursor-pointer"

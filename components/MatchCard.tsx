@@ -25,6 +25,14 @@ function getSportIcon(category: string): string {
   return SPORT_ICONS[category?.toLowerCase()] ?? '🏆';
 }
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .trim();
+}
+
 export default function MatchCard({ match, isLive = false }: MatchCardProps) {
   const source = match.sources?.[0];
   const href = source
@@ -41,49 +49,55 @@ export default function MatchCard({ match, isLive = false }: MatchCardProps) {
   return (
     <Link
       href={href}
-      className="group block relative bg-slate-900/60 backdrop-blur-sm border border-slate-800 rounded-xl overflow-hidden hover:border-emerald-500/60 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all duration-300"
+      className="group block relative bg-[#090d16]/80 border border-slate-800/80 rounded-xl overflow-hidden hover:border-emerald-500/60 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all duration-300"
       aria-label={`Tonton ${match.title}`}
     >
       {/* Poster / gradient header */}
-      <div className="relative h-40 bg-gradient-to-br from-slate-800/80 to-slate-950 flex items-center justify-center overflow-hidden">
+      <div className="relative h-40 bg-gradient-to-br from-[#0c1220] to-[#05080f] flex items-center justify-center overflow-hidden">
         {match.poster ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={match.poster.startsWith('http') ? match.poster : `https://streamed.pk/api/images/poster/${match.teams?.home?.name ?? 'home'}/${match.teams?.away?.name ?? 'away'}.webp`}
+            src={match.poster.startsWith('http') ? match.poster : `https://streamed.pk/api/images/poster/${match.teams?.home?.name ? slugify(match.teams.home.name) : 'home'}/${match.teams?.away?.name ? slugify(match.teams.away.name) : 'away'}.webp`}
             alt={`${match.title} poster`}
-            className="w-full h-full object-cover opacity-30 group-hover:opacity-55 scale-105 group-hover:scale-100 transition-all duration-500"
+            className="w-full h-full object-contain opacity-20 group-hover:opacity-35 scale-100 transition-all duration-500"
             loading="lazy"
           />
         ) : null}
 
         {/* Gradient overlays to blur out watermark logo and improve readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/90 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#090d16] via-transparent to-[#090d16]/80 z-10" />
 
         {/* Team badges */}
         <div className="relative z-20 flex items-center gap-4">
-          {match.teams?.home?.badge && (
+          {match.teams?.home?.name && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={`https://streamed.pk/api/images/badge/${match.teams.home.badge}.webp`}
-              alt={match.teams.home.name ?? ''}
+              src={match.teams.home.badge ? `https://streamed.pk/api/images/badge/${match.teams.home.badge}.webp` : `https://streamed.pk/api/images/badge/${slugify(match.teams.home.name)}.webp`}
+              alt={match.teams.home.name}
               className="w-12 h-12 object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] transform group-hover:scale-110 transition-transform duration-300"
               loading="lazy"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = 'none';
+              }}
             />
           )}
-          {(match.teams?.home || match.teams?.away) && (
-            <span className="text-slate-400 font-extrabold text-xs bg-slate-950/80 px-2 py-0.5 rounded-full border border-slate-800 backdrop-blur-sm">VS</span>
+          {(match.teams?.home?.name || match.teams?.away?.name) && (
+            <span className="text-slate-400 font-extrabold text-[10px] bg-slate-950/80 px-2 py-0.5 rounded-full border border-slate-850 backdrop-blur-sm select-none">VS</span>
           )}
-          {match.teams?.away?.badge && (
+          {match.teams?.away?.name && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={`https://streamed.pk/api/images/badge/${match.teams.away.badge}.webp`}
-              alt={match.teams.away.name ?? ''}
+              src={match.teams.away.badge ? `https://streamed.pk/api/images/badge/${match.teams.away.badge}.webp` : `https://streamed.pk/api/images/badge/${slugify(match.teams.away.name)}.webp`}
+              alt={match.teams.away.name}
               className="w-12 h-12 object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] transform group-hover:scale-110 transition-transform duration-300"
               loading="lazy"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = 'none';
+              }}
             />
           )}
-          {!match.teams?.home && !match.teams?.away && (
-            <span className="text-4xl">{getSportIcon(match.category)}</span>
+          {!match.teams?.home?.name && !match.teams?.away?.name && (
+            <span className="text-4xl select-none">{getSportIcon(match.category)}</span>
           )}
         </div>
 
