@@ -43,7 +43,8 @@ export default function MatchCard({ match, isLive = false }: MatchCardProps) {
     ? new Date(match.date * 1000).toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
-      })
+        timeZone: 'Asia/Jakarta',
+      }) + ' WIB'
     : null;
 
   return (
