@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
+import PopunderAd from '@/components/PopunderAd';
 import './globals.css';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist-sans' });
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className="min-h-full antialiased bg-[#090d16] text-slate-200">
         {children}
         <Analytics />
+        <PopunderAd />
       </body>
     </html>
   );
