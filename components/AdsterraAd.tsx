@@ -29,21 +29,23 @@ export default function AdsterraAd({ format, atKey }: AdsterraAdProps) {
   const loaded = useRef(false);
   const { width, height } = AD_SIZES[format];
 
+  // Automatically read keys from env variables if not passed as props
+  const resolvedKey =
+    atKey ||
+    (format === 'banner-728x90'
+      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_728X90
+      : format === 'banner-320x50'
+      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_320X50
+      : format === 'rectangle-300x250'
+      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_300X250
+      : undefined);
+
   useEffect(() => {
     if (loaded.current || !containerRef.current) return;
     loaded.current = true;
 
-    // ── Replace the block below with your real Adsterra snippet ──────────
-    // Example Adsterra invocation:
-    //   const atOptions = { key: atKey, format: 'iframe', height, width, params: {} };
-    //   const s = document.createElement('script');
-    //   s.type = 'text/javascript';
-    //   s.src = `//www.highperformanceformat.com/${atKey}/invoke.js`;
-    //   containerRef.current.appendChild(s);
-    // ─────────────────────────────────────────────────────────────────────
-
     // Placeholder: show a styled empty box until real key is configured
-    if (!atKey) {
+    if (!resolvedKey) {
       const placeholder = document.createElement('div');
       placeholder.style.cssText = `
         width:${width}px; height:${height}px;
@@ -62,7 +64,7 @@ export default function AdsterraAd({ format, atKey }: AdsterraAdProps) {
     script.type = 'text/javascript';
     script.innerHTML = `
       var atOptions = {
-        'key': '${atKey}',
+        'key': '${resolvedKey}',
         'format': 'iframe',
         'height': ${height},
         'width': ${width},
@@ -71,11 +73,11 @@ export default function AdsterraAd({ format, atKey }: AdsterraAdProps) {
     `;
     const invokeScript = document.createElement('script');
     invokeScript.type = 'text/javascript';
-    invokeScript.src = `//www.highperformanceformat.com/${atKey}/invoke.js`;
+    invokeScript.src = `//www.highperformanceformat.com/${resolvedKey}/invoke.js`;
 
     containerRef.current.appendChild(script);
     containerRef.current.appendChild(invokeScript);
-  }, [atKey, width, height]);
+  }, [resolvedKey, width, height]);
 
   return (
     /* Fixed-size wrapper prevents CLS — browser reserves this space immediately */
