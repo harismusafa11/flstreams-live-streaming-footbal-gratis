@@ -432,7 +432,7 @@ export default function WatchClient({
                 Mengalami kendala pemutar kosong? Gunakan Server HLS kami!
               </h4>
               <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">
-                Beberapa browser memblokir penayangan langsung (iframe) dari situs streaming eksternal karena kebijakan keamanan atau CORS. Anda bisa mengganti server pilihan di bawah untuk memuat player yang aman.
+                Beberapa browser memblokir pemutaran langsung dari situs streaming eksternal karena kebijakan keamanan atau CORS. Anda bisa mengganti server pilihan di bawah untuk memuat player yang aman.
               </p>
             </div>
           </div>
@@ -441,7 +441,7 @@ export default function WatchClient({
           {!loading && streams.length > 0 && (
             <div className="mt-4 bg-slate-900/20 border border-slate-800/60 p-4 rounded-xl">
               <p className="text-[10px] text-slate-500 mb-3 font-bold uppercase tracking-wider">
-                Pilih Server Penayangan (Decrypted HLS / Iframe Cadangan)
+                Pilih Server Penayangan (Decrypted HLS / Server Alternatif)
               </p>
               <div className="flex flex-wrap gap-2 animate-fadeIn" role="group" aria-label="Pilih server">
                 {streams.map((stream, i) => {
@@ -477,7 +477,7 @@ export default function WatchClient({
                       : 'bg-slate-900/60 text-slate-300 border-slate-800/80 hover:border-slate-700'
                   }`}
                 >
-                  Server Cadangan Player (Vidsrc) 🔗 (IFrame)
+                  Server Cadangan Player (Vidsrc) 🔗 (Alternatif)
                 </button>
               </div>
 

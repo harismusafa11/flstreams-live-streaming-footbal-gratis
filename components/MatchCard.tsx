@@ -52,17 +52,8 @@ export default function MatchCard({ match, isLive = false }: MatchCardProps) {
       className="group block relative bg-[#090d16]/80 border border-slate-800/80 rounded-xl overflow-hidden hover:border-emerald-500/60 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all duration-300"
       aria-label={`Tonton ${match.title}`}
     >
-      {/* Poster / gradient header */}
-      <div className="relative h-40 bg-gradient-to-br from-[#0c1220] to-[#05080f] flex items-center justify-center overflow-hidden">
-        {match.poster ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={match.poster.startsWith('http') ? match.poster : `https://streamed.pk/api/images/poster/${match.teams?.home?.name ? slugify(match.teams.home.name) : 'home'}/${match.teams?.away?.name ? slugify(match.teams.away.name) : 'away'}.webp`}
-            alt={`${match.title} poster`}
-            className="w-full h-full object-contain opacity-20 group-hover:opacity-35 scale-100 transition-all duration-500"
-            loading="lazy"
-          />
-        ) : null}
+      {/* Gradient header */}
+      <div className="relative h-40 bg-gradient-to-br from-[#0c1e19]/60 via-[#0a0f1d] to-[#05080f] flex items-center justify-center overflow-hidden">
 
         {/* Gradient overlays to blur out watermark logo and improve readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#090d16] via-transparent to-[#090d16]/80 z-10" />
