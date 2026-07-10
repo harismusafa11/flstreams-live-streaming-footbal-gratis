@@ -15,6 +15,24 @@ export default function HomePage() {
     <>
       <Navbar />
 
+      {/* Sitelinks Searchbox JSON-LD Schema for Google SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            'name': 'FL Streams',
+            'url': 'https://www.flstreams.my.id',
+            'potentialAction': {
+              '@type': 'SearchAction',
+              'target': 'https://www.flstreams.my.id/?query={search_term_string}',
+              'query-input': 'required name=search_term_string',
+            },
+          }),
+        }}
+      />
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
         {/* Header ad */}
         <div className="my-4 flex justify-center">
