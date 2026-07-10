@@ -19,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Attempt to fetch current matches to dynamically index active watch pages
-    const res = await fetch('https://streamed.pk/api/matches', {
+    const res = await fetch('https://streamed.pk/api/matches/all-today', {
       next: { revalidate: 60 },
       headers: {
         'User-Agent':

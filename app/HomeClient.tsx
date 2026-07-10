@@ -5,7 +5,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import MatchCard from '@/components/MatchCard';
 import type { Match } from '@/lib/types';
 
-const STREAMED_BASE = 'https://streamed.pk';
 
 const SPORTS = [
   { slug: 'all', label: '🏆 Semua' },
@@ -31,17 +30,8 @@ function SkeletonCard() {
   );
 }
 
-async function fetchMatches(filter: FilterType, sport: string): Promise<Match[]> {
-  let endpoint: string;
-
-  if (filter === 'live') {
-    endpoint = `${STREAMED_BASE}/api/matches/live`;
-  } else if (sport !== 'all') {
-    endpoint = `${STREAMED_BASE}/api/matches/${encodeURIComponent(sport)}`;
-  } else {
-    endpoint = `${STREAMED_BASE}/api/matches/all-today`;
-  }
-
+async function fetchMatches(filter: FilterType): Promise<Match[]> {
+  const endpoint = `/api/matches?filter=${filter}`;
   const res = await fetch(endpoint, {
     headers: {
       Accept: 'application/json',
@@ -95,7 +85,7 @@ export default function HomeClient() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchMatches(filter, sport);
+      const data = await fetchMatches(filter);
       setMatches(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error(e);
@@ -104,22 +94,42 @@ export default function HomeClient() {
     } finally {
       setLoading(false);
     }
-  }, [filter, sport]);
+  }, [filter]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadMatches();
   }, [loadMatches]);
 
-  // Client-side search filter
-  const filtered = query.trim()
-    ? matches.filter((m) =>
-        m.title?.toLowerCase().includes(query.toLowerCase()) ||
-        m.category?.toLowerCase().includes(query.toLowerCase()) ||
-        m.teams?.home?.name?.toLowerCase().includes(query.toLowerCase()) ||
-        m.teams?.away?.name?.toLowerCase().includes(query.toLowerCase())
-      )
-    : matches;
+  // Client-side search and category filter
+  const filtered = matches.filter((m) => {
+    // 1. Filter by sport category if not 'all'
+    if (sport !== 'all') {
+      const mCategory = m.category?.toLowerCase() || '';
+      if (sport === 'football') {
+        if (mCategory !== 'football' && mCategory !== 'soccer') return false;
+      } else if (sport === 'boxing') {
+        if (mCategory !== 'boxing' && mCategory !== 'mma' && mCategory !== 'ufc') return false;
+      } else if (sport === 'motorsport') {
+        if (mCategory !== 'motorsport' && mCategory !== 'formula1') return false;
+      } else {
+        if (mCategory !== sport.toLowerCase()) return false;
+      }
+    }
+
+    // 2. Filter by search query
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      return (
+        m.title?.toLowerCase().includes(q) ||
+        m.category?.toLowerCase().includes(q) ||
+        m.teams?.home?.name?.toLowerCase().includes(q) ||
+        m.teams?.away?.name?.toLowerCase().includes(q)
+      );
+    }
+
+    return true;
+  });
 
   const isLive = filter === 'live';
 

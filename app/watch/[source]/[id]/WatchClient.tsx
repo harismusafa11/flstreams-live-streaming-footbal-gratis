@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import LiveChat from '@/components/LiveChat';
 import AdsterraAd from '@/components/AdsterraAd';
 
-const STREAMED_BASE = 'https://streamed.pk';
 
 interface RawStream {
   streamNo: number;
@@ -184,12 +183,12 @@ export default function WatchClient({
     }, 2500);
   }, []);
 
-  // Step 1: fetch raw stream list from streamed.pk (browser passes CF)
+  // Step 1: fetch raw stream list from local proxy route (bypasses CF blocks)
   const loadStreams = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch(
-        `${STREAMED_BASE}/api/stream/${encodeURIComponent(sourceParam)}/${encodeURIComponent(idParam)}`,
+        `/api/stream?source=${encodeURIComponent(sourceParam)}&id=${encodeURIComponent(idParam)}`,
         { headers: { Accept: 'application/json' } },
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
