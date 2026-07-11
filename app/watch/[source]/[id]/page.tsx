@@ -19,7 +19,7 @@ interface MatchItem {
 // Fetch match details server-side
 async function getMatchDetails(sourceParam: string, idParam: string): Promise<MatchItem | null> {
   try {
-    const res = await fetch('https://streamed.pk/api/matches/all-today', {
+    const res = await fetch('https://streamed.pk/api/matches', {
       next: { revalidate: 60 },
       headers: {
         'User-Agent':

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   } else if (sport && sport !== 'all') {
     endpoint = `/api/matches/${encodeURIComponent(sport)}`;
   } else {
-    endpoint = '/api/matches/all-today';
+    endpoint = '/api/matches';
   }
 
   try {
