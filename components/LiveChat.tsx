@@ -166,7 +166,16 @@ export default function LiveChat({ matchId }: LiveChatProps) {
         const body = await res.json().catch(() => ({}));
         setError(body.error ?? 'Gagal mengirim pesan');
       } else {
+        const newMsg = await res.json().catch(() => null);
+        if (newMsg) {
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === newMsg.id)) return prev;
+            const updated = [...prev, newMsg];
+            return updated.slice(-MAX_MESSAGES);
+          });
+        }
         setInput('');
+        requestAnimationFrame(scrollToBottom);
       }
     } catch {
       setError('Koneksi gagal');
