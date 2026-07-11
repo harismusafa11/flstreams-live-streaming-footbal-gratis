@@ -299,8 +299,11 @@ export default function WatchClient({
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/stream?source=${encodeURIComponent(sourceParam)}&id=${encodeURIComponent(idParam)}`,
-        { headers: { Accept: 'application/json' } },
+        `/api/stream?source=${encodeURIComponent(sourceParam)}&id=${encodeURIComponent(idParam)}&_t=${Date.now()}`,
+        {
+          cache: 'no-store',
+          headers: { Accept: 'application/json' },
+        },
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const raw: RawStream[] = await res.json();

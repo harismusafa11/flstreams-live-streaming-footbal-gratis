@@ -25,14 +25,14 @@ export async function GET(request: NextRequest) {
     try {
       const res = await fetch(`${BASE_URL}${endpoint}`, {
         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
-        next: { revalidate: 60 },
+        next: { revalidate: 10 },
       });
       if (!res.ok) {
         return Response.json({ error: `Upstream error: ${res.status}` }, { status: res.status });
       }
       const data = await res.json();
       return Response.json(data, {
-        headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
+        headers: { 'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=5' },
       });
     } catch (err) {
       console.error('[/api/matches] Live fetch failed:', err);
@@ -46,14 +46,14 @@ export async function GET(request: NextRequest) {
     try {
       const res = await fetch(`${BASE_URL}${endpoint}`, {
         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
-        next: { revalidate: 60 },
+        next: { revalidate: 10 },
       });
       if (!res.ok) {
         return Response.json({ error: `Upstream error: ${res.status}` }, { status: res.status });
       }
       const data = await res.json();
       return Response.json(data, {
-        headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
+        headers: { 'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=5' },
       });
     } catch (err) {
       console.error(`[/api/matches] Sport ${sport} fetch failed:`, err);
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         },
-        next: { revalidate: 60 },
+        next: { revalidate: 10 },
       });
       if (res.ok) {
         const json = await res.json();
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
   // If the main schedule endpoint succeeded, return it immediately
   if (mainData) {
     return Response.json(mainData, {
-      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
+      headers: { 'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=5' },
     });
   }
 
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         },
-        next: { revalidate: 60 },
+        next: { revalidate: 10 },
       });
       if (res.ok) {
         const json = await res.json();
@@ -146,7 +146,7 @@ export async function GET(request: NextRequest) {
     allMatches.sort((a, b) => (Number(a.date) || 0) - (Number(b.date) || 0));
 
     return Response.json(allMatches, {
-      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
+      headers: { 'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=5' },
     });
   } catch (err) {
     console.error('[/api/matches] Compiling sports failed:', err);

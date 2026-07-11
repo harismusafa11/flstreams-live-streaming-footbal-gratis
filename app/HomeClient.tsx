@@ -31,8 +31,9 @@ function SkeletonCard() {
 }
 
 async function fetchMatches(filter: FilterType, sport: string): Promise<Match[]> {
-  const endpoint = `/api/matches?filter=${filter}&sport=${sport}`;
+  const endpoint = `/api/matches?filter=${filter}&sport=${sport}&_t=${Date.now()}`;
   const res = await fetch(endpoint, {
+    cache: 'no-store',
     headers: {
       Accept: 'application/json',
     },
@@ -99,6 +100,10 @@ export default function HomeClient() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadMatches();
+
+    // Poll for matches updates every 30 seconds to keep statuses (live/scheduled) and items real-time
+    const interval = setInterval(loadMatches, 30000);
+    return () => clearInterval(interval);
   }, [loadMatches]);
 
   // Client-side search and category filter
