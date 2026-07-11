@@ -36,16 +36,43 @@ export default function MatchCard({ match, isLive = false }: MatchCardProps) {
     ? (match.date > 9999999999 ? match.date : match.date * 1000)
     : null;
 
-  const startTime = timestamp
-    ? new Date(timestamp)
-        .toLocaleTimeString('id-ID', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-          timeZone: 'Asia/Jakarta',
-        })
-        .replace('.', ':') + ' WIB'
-    : null;
+  let startTime = null;
+  if (timestamp) {
+    const matchDate = new Date(timestamp);
+    
+    const todayStr = new Date().toLocaleDateString('id-ID', {
+      timeZone: 'Asia/Jakarta',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric'
+    });
+    
+    const matchDayStr = matchDate.toLocaleDateString('id-ID', {
+      timeZone: 'Asia/Jakarta',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric'
+    });
+    
+    const isToday = todayStr === matchDayStr;
+    const timeStr = matchDate.toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'Asia/Jakarta',
+    }).replace('.', ':');
+    
+    if (isToday) {
+      startTime = `${timeStr} WIB`;
+    } else {
+      const dateStr = matchDate.toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        timeZone: 'Asia/Jakarta'
+      });
+      startTime = `${dateStr}, ${timeStr} WIB`;
+    }
+  }
 
   return (
     <Link
@@ -117,7 +144,7 @@ export default function MatchCard({ match, isLive = false }: MatchCardProps) {
         </h3>
         <div className="flex items-center justify-between mt-2">
           {startTime && (
-            <span className="text-xs text-slate-500">🕐 {startTime}</span>
+            <span className="text-xs text-slate-500" suppressHydrationWarning>🕐 {startTime}</span>
           )}
           <span className="text-xs text-emerald-400/70 ml-auto">
             {match.sources?.length ?? 0} server →
