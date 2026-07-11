@@ -73,7 +73,10 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     console.error('[/api/chat POST]', error);
-    return Response.json({ error: 'Failed to save message' }, { status: 500 });
+    return Response.json(
+      { error: `Database error: ${error.message} (${error.details || 'no details'})` },
+      { status: 500 },
+    );
   }
 
   return Response.json(data, { status: 201 });

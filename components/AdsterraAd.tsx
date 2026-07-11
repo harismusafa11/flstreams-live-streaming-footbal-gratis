@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-type AdFormat = 'banner-728x90' | 'banner-320x50' | 'rectangle-300x250';
+type AdFormat = 'banner-728x90' | 'banner-468x60' | 'banner-320x50' | 'rectangle-300x250';
 
 interface AdsterraAdProps {
   format: AdFormat;
@@ -12,6 +12,7 @@ interface AdsterraAdProps {
 
 const AD_SIZES: Record<AdFormat, { width: number; height: number }> = {
   'banner-728x90': { width: 728, height: 90 },
+  'banner-468x60': { width: 468, height: 60 },
   'banner-320x50': { width: 320, height: 50 },
   'rectangle-300x250': { width: 300, height: 250 },
 };
@@ -37,8 +38,10 @@ export default function AdsterraAd({ format, atKey }: AdsterraAdProps) {
     atKey ||
     (format === 'banner-728x90'
       ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_728X90 || 'a90d6bab75e89e072c78f8b6a4e22223'
+      : format === 'banner-468x60'
+      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_468X60 || 'fe37e1a7f98d3449911fb6a327cfbfd6'
       : format === 'banner-320x50'
-      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_320X50 || 'fe37e1a7f98d3449911fb6a327cfbfd6'
+      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_320X50
       : format === 'rectangle-300x250'
       ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_300X250 || 'f6abcfb2f5ba24a6004400d2ef90b40a'
       : undefined);
