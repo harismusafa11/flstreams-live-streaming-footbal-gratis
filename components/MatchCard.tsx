@@ -32,12 +32,19 @@ export default function MatchCard({ match, isLive = false }: MatchCardProps) {
     ? `/watch/${source.source}/${source.id}`
     : '#';
 
-  const startTime = match.date
-    ? new Date(match.date * 1000).toLocaleTimeString('id-ID', {
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: 'Asia/Jakarta',
-      }) + ' WIB'
+  const timestamp = match.date
+    ? (match.date > 9999999999 ? match.date : match.date * 1000)
+    : null;
+
+  const startTime = timestamp
+    ? new Date(timestamp)
+        .toLocaleTimeString('id-ID', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+          timeZone: 'Asia/Jakarta',
+        })
+        .replace('.', ':') + ' WIB'
     : null;
 
   return (

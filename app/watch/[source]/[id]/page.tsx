@@ -19,22 +19,69 @@ interface MatchItem {
 // Fetch match details server-side
 async function getMatchDetails(sourceParam: string, idParam: string): Promise<MatchItem | null> {
   try {
-    const res = await fetch('https://streamed.pk/api/matches', {
-      next: { revalidate: 60 },
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        Accept: 'application/json',
-      },
-    });
-    if (!res.ok) return null;
-    const matches: MatchItem[] = await res.json();
-    if (!Array.isArray(matches)) return null;
+    const mainCandidates = [
+      'https://streamed.pk/api/matches/all-today',
+      'https://streamed.pk/api/matches/today'
+    ];
 
-    // Find match with this source and id
+    let matches: MatchItem[] = [];
+    let success = false;
+
+    for (const url of mainCandidates) {
+      try {
+        const res = await fetch(url, {
+          next: { revalidate: 60 },
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            Accept: 'application/json',
+          },
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json) && json.length > 0) {
+            matches = json;
+            success = true;
+            break;
+          }
+        }
+      } catch (e) {
+        console.error(`getMatchDetails candidate ${url} failed:`, e);
+      }
+    }
+
+    if (!success) {
+      const sportsList = [
+        'football', 'basketball', 'tennis', 'motor-sports', 'fight',
+        'cricket', 'rugby', 'afl', 'baseball', 'hockey',
+        'american-football', 'golf', 'billiards', 'darts', 'other'
+      ];
+
+      const fetchPromises = sportsList.map(async (sp) => {
+        const url = `https://streamed.pk/api/matches/${sp}`;
+        const res = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+          next: { revalidate: 60 },
+        });
+        if (res.ok) {
+          const json = await res.json();
+          return Array.isArray(json) ? json : [];
+        }
+        return [];
+      });
+
+      const results = await Promise.allSettled(fetchPromises);
+      for (const r of results) {
+        if (r.status === 'fulfilled') {
+          matches.push(...r.value);
+        }
+      }
+    }
+
     return (
       matches.find((m) =>
-        m.sources?.some((s) => s.source === sourceParam && s.id === idParam)
+        m && m.sources?.some((s) => s.source === sourceParam && s.id === idParam)
       ) || null
     );
   } catch (e) {
@@ -100,7 +147,7 @@ function SportsEventSchema({
 }) {
   const cleanTitle = match?.title || formatFallbackTitle(id);
   const dateIso = match?.date
-    ? new Date(match.date * 1000).toISOString()
+    ? new Date(match.date > 9999999999 ? match.date : match.date * 1000).toISOString()
     : new Date().toISOString();
 
   const schema = {
