@@ -41,7 +41,7 @@ export default function AdsterraAd({ format, atKey }: AdsterraAdProps) {
       : format === 'banner-468x60'
       ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_468X60 || 'fe37e1a7f98d3449911fb6a327cfbfd6'
       : format === 'banner-320x50'
-      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_320X50
+      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_320X50 || 'de58e12ddba592f4aad95bbb2a4a0002'
       : format === 'rectangle-300x250'
       ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_300X250 || 'f6abcfb2f5ba24a6004400d2ef90b40a'
       : undefined);
@@ -86,7 +86,10 @@ export default function AdsterraAd({ format, atKey }: AdsterraAdProps) {
       await new Promise<void>((resolve) => {
         const invokeScript = document.createElement('script');
         invokeScript.type = 'text/javascript';
-        invokeScript.src = `//www.highperformanceformat.com/${resolvedKey}/invoke.js`;
+        const domain = resolvedKey === 'de58e12ddba592f4aad95bbb2a4a0002'
+          ? 'tuxedoarbourannouncement.com'
+          : 'www.highperformanceformat.com';
+        invokeScript.src = `https://${domain}/${resolvedKey}/invoke.js`;
         invokeScript.onload = () => resolve();
         invokeScript.onerror = () => resolve();
         currentContainer.appendChild(invokeScript);

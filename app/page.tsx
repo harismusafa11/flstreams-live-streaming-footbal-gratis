@@ -39,10 +39,8 @@ export default function HomePage() {
           <div className="hidden md:block">
             <AdsterraAd format="banner-728x90" />
           </div>
-          <div className="block md:hidden max-w-full overflow-hidden flex justify-center">
-            <div className="scale-[0.85] sm:scale-100 origin-center my-[-5px]">
-              <AdsterraAd format="banner-468x60" />
-            </div>
+          <div className="block md:hidden">
+            <AdsterraAd format="banner-320x50" />
           </div>
         </div>
 
