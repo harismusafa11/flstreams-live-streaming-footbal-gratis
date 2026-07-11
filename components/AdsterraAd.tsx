@@ -36,11 +36,11 @@ export default function AdsterraAd({ format, atKey }: AdsterraAdProps) {
   const resolvedKey =
     atKey ||
     (format === 'banner-728x90'
-      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_728X90
+      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_728X90 || 'a90d6bab75e89e072c78f8b6a4e22223'
       : format === 'banner-320x50'
-      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_320X50
+      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_320X50 || 'fe37e1a7f98d3449911fb6a327cfbfd6'
       : format === 'rectangle-300x250'
-      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_300X250
+      ? process.env.NEXT_PUBLIC_ADSTERRA_KEY_300X250 || 'f6abcfb2f5ba24a6004400d2ef90b40a'
       : undefined);
 
   useEffect(() => {

@@ -74,17 +74,15 @@ function HlsPlayer({
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<{ destroy: () => void } | null>(null);
 
-  // Notify parent of the mounted video element
-  useEffect(() => {
-    if (!usingFallback && relay && videoRef.current) {
-      onVideoMount(videoRef.current);
-    } else {
-      onVideoMount(null);
-    }
-    return () => {
-      onVideoMount(null);
-    };
-  }, [onVideoMount, usingFallback, relay]);
+  // Compose callback ref to notify parent on mounting and set local ref
+  const composeVideoRef = useCallback(
+    (el: HTMLVideoElement | null) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (videoRef as any).current = el;
+      onVideoMount(el);
+    },
+    [onVideoMount],
+  );
 
   useEffect(() => {
     if (!relay) {
@@ -150,7 +148,7 @@ function HlsPlayer({
 
   return (
     <video
-      ref={videoRef}
+      ref={composeVideoRef}
       className="absolute inset-0 w-full h-full bg-black cursor-pointer"
       autoPlay
       playsInline
@@ -185,6 +183,32 @@ export default function WatchClient({
   const [isMuted, setIsMuted] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
+
+  // Auto-hide controls bar states & logic
+  const [controlsVisible, setControlsVisible] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const controlsTimeoutRef = useRef<any>(null);
+
+  const resetControlsTimer = useCallback(() => {
+    setControlsVisible(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    if (isPlaying && !usingFallback) {
+      controlsTimeoutRef.current = setTimeout(() => {
+        setControlsVisible(false);
+      }, 3000);
+    }
+  }, [isPlaying, usingFallback]);
+
+  useEffect(() => {
+    resetControlsTimer();
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    };
+  }, [isPlaying, resetControlsTimer]);
 
   const onVideoMount = useCallback((el: HTMLVideoElement | null) => {
     videoElementRef.current = el;
@@ -392,6 +416,8 @@ export default function WatchClient({
           {/* Player Viewport */}
           <div
             ref={playerRef}
+            onMouseMove={resetControlsTimer}
+            onClick={resetControlsTimer}
             className="relative aspect-video bg-slate-950 rounded-xl overflow-hidden border border-slate-800/80 shadow-2xl group/player"
           >
             {loading ? (
@@ -472,7 +498,7 @@ export default function WatchClient({
 
             {/* Custom controls overlay bar inside the player */}
             {!loading && activeStream && (
-              <div className="absolute bottom-0 left-0 right-0 h-12 bg-slate-950/85 backdrop-blur-md border-t border-slate-800/60 flex items-center justify-between px-4 z-30 opacity-100 transition-opacity duration-300">
+              <div className={`absolute bottom-0 left-0 right-0 h-12 bg-slate-950/85 backdrop-blur-md border-t border-slate-800/60 flex items-center justify-between px-4 z-30 transition-all duration-300 ${controlsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'}`}>
                 {/* Play/volume & status */}
                 <div className="flex items-center gap-4">
                   {/* Play/Pause Button */}
