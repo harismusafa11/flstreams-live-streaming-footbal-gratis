@@ -16,14 +16,17 @@ const AD_SIZES: Record<AdFormat, { width: number; height: number }> = {
   'rectangle-300x250': { width: 300, height: 250 },
 };
 
-/**
- * AdsterraAd — CLS-safe Adsterra ad component.
- *
- * - Renders only on the client (useEffect) to avoid hydration errors.
- * - Reserves fixed dimensions before the ad loads, preventing layout shift.
- * - Replace the <script> contents inside useEffect with your real Adsterra
- *   invocation code (atOptions + banner script).
- */
+// Sequential queue loader to prevent race conditions on global window.atOptions
+let adsterraQueue = Promise.resolve();
+
+function queueAdLoad(task: () => Promise<void>) {
+  const nextTask = adsterraQueue.then(task, task);
+  adsterraQueue = nextTask.catch(() => undefined);
+  return nextTask;
+}
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export default function AdsterraAd({ format, atKey }: AdsterraAdProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const loaded = useRef(false);
@@ -59,24 +62,43 @@ export default function AdsterraAd({ format, atKey }: AdsterraAdProps) {
       return;
     }
 
-    // Real Adsterra script injection
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.innerHTML = `
-      var atOptions = {
-        'key': '${resolvedKey}',
-        'format': 'iframe',
-        'height': ${height},
-        'width': ${width},
-        'params': {}
-      };
-    `;
-    const invokeScript = document.createElement('script');
-    invokeScript.type = 'text/javascript';
-    invokeScript.src = `//www.highperformanceformat.com/${resolvedKey}/invoke.js`;
+    const currentContainer = containerRef.current;
+    let cancelled = false;
 
-    containerRef.current.appendChild(script);
-    containerRef.current.appendChild(invokeScript);
+    queueAdLoad(async () => {
+      if (cancelled || !currentContainer.isConnected) return;
+
+      currentContainer.innerHTML = '';
+
+      // Set global options for the current banner slot
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).atOptions = {
+        key: resolvedKey,
+        format: 'iframe',
+        height,
+        width,
+        params: {},
+      };
+
+      await new Promise<void>((resolve) => {
+        const invokeScript = document.createElement('script');
+        invokeScript.type = 'text/javascript';
+        invokeScript.src = `//www.highperformanceformat.com/${resolvedKey}/invoke.js`;
+        invokeScript.onload = () => resolve();
+        invokeScript.onerror = () => resolve();
+        currentContainer.appendChild(invokeScript);
+      });
+
+      // Give the script a short window to write the iframe before the next ad overwrites atOptions
+      await wait(450);
+    });
+
+    return () => {
+      cancelled = true;
+      if (currentContainer) {
+        currentContainer.innerHTML = '';
+      }
+    };
   }, [resolvedKey, width, height]);
 
   return (

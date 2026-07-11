@@ -142,7 +142,6 @@ function HlsPlayer({
         className="absolute inset-0 w-full h-full"
         allowFullScreen
         allow="autoplay; fullscreen; picture-in-picture"
-        sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
         title={title}
         loading="lazy"
       />
