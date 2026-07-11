@@ -1,15 +1,21 @@
 import { type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
+let supabaseAdmin: SupabaseClient | null = null;
 
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
+function getSupabaseAdmin() {
+  if (!supabaseAdmin) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'placeholder';
+    supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+  }
+  return supabaseAdmin;
+}
 
 // Simple in-memory rate limiter keyed by IP
 const rateMap = new Map<string, { count: number; resetAt: number }>();
@@ -65,7 +71,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Message rejected' }, { status: 400 });
   }
 
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await getSupabaseAdmin()
     .from('chats')
     .insert({ match_id: cleanMatchId, username: cleanUsername, message: cleanMessage })
     .select()
@@ -90,7 +96,7 @@ export async function GET(request: NextRequest) {
     return Response.json({ error: 'Missing match_id' }, { status: 400 });
   }
 
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await getSupabaseAdmin()
     .from('chats')
     .select('*')
     .eq('match_id', match_id)
