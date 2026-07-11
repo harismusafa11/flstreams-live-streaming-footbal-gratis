@@ -25,13 +25,6 @@ function getSportIcon(category: string): string {
   return SPORT_ICONS[category?.toLowerCase()] ?? '🏆';
 }
 
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .trim();
-}
 
 export default function MatchCard({ match, isLive = false }: MatchCardProps) {
   const source = match.sources?.[0];
@@ -61,11 +54,11 @@ export default function MatchCard({ match, isLive = false }: MatchCardProps) {
 
         {/* Team badges */}
         <div className="relative z-20 flex items-center gap-4">
-          {match.teams?.home?.name && (
+          {match.teams?.home?.badge && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={match.teams.home.badge ? `https://streamed.pk/api/images/badge/${match.teams.home.badge}.webp` : `https://streamed.pk/api/images/badge/${slugify(match.teams.home.name)}.webp`}
-              alt={match.teams.home.name}
+              src={`https://streamed.pk/api/images/badge/${match.teams.home.badge}.webp`}
+              alt={match.teams.home.name ?? 'Home Team'}
               className="w-12 h-12 object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] transform group-hover:scale-110 transition-transform duration-300"
               loading="lazy"
               onError={(e) => {
@@ -73,14 +66,14 @@ export default function MatchCard({ match, isLive = false }: MatchCardProps) {
               }}
             />
           )}
-          {(match.teams?.home?.name || match.teams?.away?.name) && (
+          {(match.teams?.home?.badge || match.teams?.away?.badge) && (
             <span className="text-slate-400 font-extrabold text-[10px] bg-slate-950/80 px-2 py-0.5 rounded-full border border-slate-850 backdrop-blur-sm select-none">VS</span>
           )}
-          {match.teams?.away?.name && (
+          {match.teams?.away?.badge && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={match.teams.away.badge ? `https://streamed.pk/api/images/badge/${match.teams.away.badge}.webp` : `https://streamed.pk/api/images/badge/${slugify(match.teams.away.name)}.webp`}
-              alt={match.teams.away.name}
+              src={`https://streamed.pk/api/images/badge/${match.teams.away.badge}.webp`}
+              alt={match.teams.away.name ?? 'Away Team'}
               className="w-12 h-12 object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] transform group-hover:scale-110 transition-transform duration-300"
               loading="lazy"
               onError={(e) => {
@@ -88,7 +81,7 @@ export default function MatchCard({ match, isLive = false }: MatchCardProps) {
               }}
             />
           )}
-          {!match.teams?.home?.name && !match.teams?.away?.name && (
+          {!match.teams?.home?.badge && !match.teams?.away?.badge && (
             <span className="text-4xl select-none">{getSportIcon(match.category)}</span>
           )}
         </div>
