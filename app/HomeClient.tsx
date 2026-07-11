@@ -30,8 +30,8 @@ function SkeletonCard() {
   );
 }
 
-async function fetchMatches(filter: FilterType): Promise<Match[]> {
-  const endpoint = `/api/matches?filter=${filter}`;
+async function fetchMatches(filter: FilterType, sport: string): Promise<Match[]> {
+  const endpoint = `/api/matches?filter=${filter}&sport=${sport}`;
   const res = await fetch(endpoint, {
     headers: {
       Accept: 'application/json',
@@ -85,7 +85,7 @@ export default function HomeClient() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchMatches(filter);
+      const data = await fetchMatches(filter, sport);
       setMatches(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error(e);
@@ -94,7 +94,7 @@ export default function HomeClient() {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [filter, sport]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -103,8 +103,8 @@ export default function HomeClient() {
 
   // Client-side search and category filter
   const filtered = matches.filter((m) => {
-    // 1. Filter by sport category if not 'all'
-    if (sport !== 'all') {
+    // 1. Filter by sport category (only required client-side for live matches)
+    if (filter === 'live' && sport !== 'all') {
       const mCategory = m.category?.toLowerCase() || '';
       if (sport === 'football') {
         if (mCategory !== 'football' && mCategory !== 'soccer') return false;

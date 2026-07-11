@@ -1,10 +1,15 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
-import PopunderAd from '@/components/PopunderAd';
 import './globals.css';
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist-sans' });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: 'FL Streams - Live Streaming Gratis Sepak Bola',
@@ -45,7 +50,6 @@ export default function RootLayout({
       <body className="min-h-full antialiased bg-[#090d16] text-slate-200">
         {children}
         <Analytics />
-        <PopunderAd />
       </body>
     </html>
   );

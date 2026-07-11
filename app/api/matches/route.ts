@@ -10,8 +10,6 @@ export async function GET(request: NextRequest) {
   let endpoint: string;
   if (filter === 'live') {
     endpoint = '/api/matches/live';
-  } else if (filter === 'today') {
-    endpoint = '/api/matches/all-today';
   } else if (sport && sport !== 'all') {
     endpoint = `/api/matches/${encodeURIComponent(sport)}`;
   } else {

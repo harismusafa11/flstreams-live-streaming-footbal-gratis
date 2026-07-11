@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
+import PopunderAd from '@/components/PopunderAd';
 import WatchClient from './WatchClient';
 
 interface MatchItem {
@@ -171,6 +172,7 @@ export default async function WatchPage({
     <>
       <SportsEventSchema match={match} source={source} id={id} />
       <Navbar />
+      <PopunderAd />
 
       <main className="max-w-[1600px] mx-auto px-3 sm:px-6 py-4 pb-16">
         {/* Top Action Bar */}
