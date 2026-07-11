@@ -1,5 +1,15 @@
 import { type NextRequest } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
+
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+});
 
 // Simple in-memory rate limiter keyed by IP
 const rateMap = new Map<string, { count: number; resetAt: number }>();
@@ -55,7 +65,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Message rejected' }, { status: 400 });
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('chats')
     .insert({ match_id: cleanMatchId, username: cleanUsername, message: cleanMessage })
     .select()
@@ -77,7 +87,7 @@ export async function GET(request: NextRequest) {
     return Response.json({ error: 'Missing match_id' }, { status: 400 });
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('chats')
     .select('*')
     .eq('match_id', match_id)

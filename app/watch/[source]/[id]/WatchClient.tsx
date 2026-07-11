@@ -60,15 +60,31 @@ function HlsPlayer({
   title,
   usingFallback,
   setUsingFallback,
+  onVideoMount,
+  onVideoClick,
 }: {
   relay?: string;
   embedUrl: string;
   title: string;
   usingFallback: boolean;
   setUsingFallback: (v: boolean) => void;
+  onVideoMount: (el: HTMLVideoElement | null) => void;
+  onVideoClick: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<{ destroy: () => void } | null>(null);
+
+  // Notify parent of the mounted video element
+  useEffect(() => {
+    if (!usingFallback && relay && videoRef.current) {
+      onVideoMount(videoRef.current);
+    } else {
+      onVideoMount(null);
+    }
+    return () => {
+      onVideoMount(null);
+    };
+  }, [onVideoMount, usingFallback, relay]);
 
   useEffect(() => {
     if (!relay) {
@@ -126,6 +142,7 @@ function HlsPlayer({
         className="absolute inset-0 w-full h-full"
         allowFullScreen
         allow="autoplay; fullscreen; picture-in-picture"
+        sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"
         title={title}
         loading="lazy"
       />
@@ -135,11 +152,11 @@ function HlsPlayer({
   return (
     <video
       ref={videoRef}
-      className="absolute inset-0 w-full h-full bg-black"
-      controls
+      className="absolute inset-0 w-full h-full bg-black cursor-pointer"
       autoPlay
       playsInline
       title={title}
+      onClick={onVideoClick}
     />
   );
 }
@@ -162,6 +179,77 @@ export default function WatchClient({
   const [floaters, setFloaters] = useState<{ id: number; emoji: string; x: number }[]>([]);
   const floaterIdRef = useRef(0);
   const playerRef = useRef<HTMLDivElement>(null);
+
+  // Custom player control states & ref
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const videoElementRef = useRef<HTMLVideoElement | null>(null);
+
+  const onVideoMount = useCallback((el: HTMLVideoElement | null) => {
+    videoElementRef.current = el;
+    if (el) {
+      setIsPlaying(!el.paused);
+      setVolume(el.volume);
+      setIsMuted(el.muted || el.volume === 0);
+    }
+  }, []);
+
+  const togglePlay = useCallback(() => {
+    const video = videoElementRef.current;
+    if (!video) return;
+    if (video.paused) {
+      video.play().catch(() => {});
+      setIsPlaying(true);
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    const video = videoElementRef.current;
+    if (!video) return;
+    const nextMute = !video.muted;
+    video.muted = nextMute;
+    setIsMuted(nextMute);
+  }, []);
+
+  const handleVolumeChange = useCallback((val: number) => {
+    const video = videoElementRef.current;
+    if (!video) return;
+    video.volume = val;
+    setVolume(val);
+    if (val > 0) {
+      video.muted = false;
+      setIsMuted(false);
+    }
+  }, []);
+
+  // Sync state with video element events
+  useEffect(() => {
+    const video = videoElementRef.current;
+    if (!video) return;
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleVolume = () => {
+      setVolume(video.volume);
+      setIsMuted(video.muted || video.volume === 0);
+    };
+
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+    video.addEventListener('volumechange', handleVolume);
+
+    return () => {
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
+      video.removeEventListener('volumechange', handleVolume);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoElementRef.current]);
 
   const toggleFullscreen = useCallback(() => {
     if (!playerRef.current) return;
@@ -347,6 +435,8 @@ export default function WatchClient({
                 title={`${matchTitle} — Server ${activeIndex + 1}`}
                 usingFallback={usingFallback}
                 setUsingFallback={setUsingFallback}
+                onVideoMount={onVideoMount}
+                onVideoClick={togglePlay}
               />
             )}
 
@@ -385,12 +475,53 @@ export default function WatchClient({
             {!loading && activeStream && (
               <div className="absolute bottom-0 left-0 right-0 h-12 bg-slate-950/85 backdrop-blur-md border-t border-slate-800/60 flex items-center justify-between px-4 z-30 opacity-100 transition-opacity duration-300">
                 {/* Play/volume & status */}
-                <div className="flex items-center gap-3">
-                  <span className="text-slate-400 text-xs font-bold leading-none cursor-pointer hover:text-emerald-400 transition-colors">▶</span>
-                  <span className="text-slate-400 text-sm font-bold leading-none cursor-pointer hover:text-emerald-400 transition-colors">🔊</span>
-                  <span className="text-[9px] text-emerald-400 font-extrabold tracking-widest flex items-center gap-1.5 ml-2 border border-emerald-500/20 bg-emerald-500/5 px-2 py-0.5 rounded">
+                <div className="flex items-center gap-4">
+                  {/* Play/Pause Button */}
+                  {!usingFallback && activeStream.relay ? (
+                    <button
+                      onClick={togglePlay}
+                      className="text-slate-400 hover:text-emerald-400 text-xs font-bold leading-none cursor-pointer transition-colors w-4 text-left"
+                      aria-label={isPlaying ? 'Pause' : 'Play'}
+                    >
+                      {isPlaying ? '⏸' : '▶'}
+                    </button>
+                  ) : (
+                    <span className="text-slate-650 text-xs select-none">▶</span>
+                  )}
+
+                  {/* Volume Control Slider */}
+                  {!usingFallback && activeStream.relay ? (
+                    <div
+                      className="flex items-center gap-2 group/volume relative"
+                      onMouseEnter={() => setShowVolumeSlider(true)}
+                      onMouseLeave={() => setShowVolumeSlider(false)}
+                    >
+                      <button
+                        onClick={toggleMute}
+                        className="text-slate-400 hover:text-emerald-400 text-sm font-bold leading-none cursor-pointer transition-colors"
+                        aria-label={isMuted ? 'Unmute' : 'Mute'}
+                      >
+                        {isMuted ? '🔇' : volume < 0.3 ? '🔈' : volume < 0.7 ? '🔉' : '🔊'}
+                      </button>
+                      <div className={`transition-all duration-200 overflow-hidden flex items-center h-5 ${showVolumeSlider ? 'w-20 opacity-100' : 'w-0 opacity-0 pointer-events-none'}`}>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.05"
+                          value={isMuted ? 0 : volume}
+                          onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                          className="w-16 h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-slate-650 text-sm select-none">🔊</span>
+                  )}
+
+                  <span className="text-[9px] text-emerald-400 font-extrabold tracking-widest flex items-center gap-1.5 ml-1 border border-emerald-500/20 bg-emerald-500/5 px-2 py-0.5 rounded">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    NATIVE SECURE PLAYER
+                    {!usingFallback && activeStream.relay ? 'NATIVE SECURE PLAYER' : 'EXTERNAL IFRAME PLAYER'}
                   </span>
                 </div>
 
