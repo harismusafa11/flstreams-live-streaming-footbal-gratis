@@ -543,11 +543,6 @@ export default function WatchClient({
                   ) : (
                     <span className="text-slate-650 text-sm select-none">🔊</span>
                   )}
-
-                  <span className="text-[9px] text-emerald-400 font-extrabold tracking-widest flex items-center gap-1.5 ml-1 border border-emerald-500/20 bg-emerald-500/5 px-2 py-0.5 rounded">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    {!usingFallback && activeStream.relay ? 'NATIVE SECURE PLAYER' : 'EXTERNAL IFRAME PLAYER'}
-                  </span>
                 </div>
 
                 {/* Reaction pill */}
