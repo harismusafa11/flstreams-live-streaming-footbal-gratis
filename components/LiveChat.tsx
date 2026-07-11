@@ -94,19 +94,43 @@ export default function LiveChat({ matchId }: LiveChatProps) {
     });
   }, []);
 
-  // Load initial messages
+  // Load initial messages and poll for updates as a fallback
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/chat?match_id=${encodeURIComponent(matchId)}`)
-      .then((r) => r.json())
-      .then((data: ChatMessage[]) => {
-        if (!cancelled) {
-          setMessages(data.slice(-MAX_MESSAGES));
+
+    const fetchMessages = async () => {
+      try {
+        const r = await fetch(`/api/chat?match_id=${encodeURIComponent(matchId)}`);
+        if (r.ok && !cancelled) {
+          const data: ChatMessage[] = await r.json();
+          // API returns newest first (descending). Reverse it for chronological order.
+          const chronological = [...data].reverse();
+          setMessages((prev) => {
+            // Merge messages to avoid losing optimistically appended unsaved messages
+            const merged = [...prev];
+            chronological.forEach((m) => {
+              if (!merged.some((existing) => existing.id === m.id)) {
+                merged.push(m);
+              }
+            });
+            // Sort by created_at to keep order correct
+            merged.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+            return merged.slice(-MAX_MESSAGES);
+          });
         }
-      })
-      .catch(() => {});
+      } catch (err) {
+        console.error('Failed to poll chat:', err);
+      }
+    };
+
+    fetchMessages();
+
+    // Poll every 5 seconds as a fallback
+    const interval = setInterval(fetchMessages, 5000);
+
     return () => {
       cancelled = true;
+      clearInterval(interval);
     };
   }, [matchId]);
 
@@ -125,16 +149,16 @@ export default function LiveChat({ matchId }: LiveChatProps) {
           event: 'INSERT',
           schema: 'public',
           table: 'chats',
-          filter: `match_id=eq.${matchId}`,
         },
         (payload) => {
           const newMsg = payload.new as ChatMessage;
+          if (newMsg.match_id !== matchId) return;
+
           setMessages((prev) => {
+            if (prev.some((m) => m.id === newMsg.id)) return prev;
             const updated = [...prev, newMsg];
-            // Keep only last MAX_MESSAGES to prevent browser lag
             return updated.slice(-MAX_MESSAGES);
           });
-          // Defer scroll so DOM updates first
           requestAnimationFrame(scrollToBottom);
         }
       )
