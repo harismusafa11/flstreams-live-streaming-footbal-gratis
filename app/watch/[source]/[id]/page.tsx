@@ -3,94 +3,74 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import PopunderAd from '@/components/PopunderAd';
 import WatchClient from './WatchClient';
+import type { StreamFreeStream } from '@/lib/types';
+
+const BASE_SF = 'https://streamfree.top';
 
 interface MatchItem {
-  id: string;
-  title: string;
+  name: string;
   category: string;
-  date: number;
-  teams?: {
-    home?: { name: string; badge?: string };
-    away?: { name: string; badge?: string };
-  };
-  sources?: { source: string; id: string }[];
+  league?: string;
+  stream_key: string;
+  match_timestamp: number;
+  embed_url: string;
+  thumbnail_url?: string;
 }
 
-// Fetch match details server-side
-async function getMatchDetails(sourceParam: string, idParam: string): Promise<MatchItem | null> {
+// Fetch stream details from StreamFree API
+async function getMatchDetails(
+  category: string,
+  streamKey: string,
+): Promise<MatchItem | null> {
   try {
-    const mainCandidates = [
-      'https://streamed.pk/api/matches/all-today',
-      'https://streamed.pk/api/matches/today'
-    ];
-
-    let matches: MatchItem[] = [];
-    let success = false;
-
-    for (const url of mainCandidates) {
-      try {
-        const res = await fetch(url, {
-          next: { revalidate: 60 },
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            Accept: 'application/json',
-          },
-        });
-        if (res.ok) {
-          const json = await res.json();
-          if (Array.isArray(json) && json.length > 0) {
-            matches = json;
-            success = true;
-            break;
-          }
-        }
-      } catch (e) {
-        console.error(`getMatchDetails candidate ${url} failed:`, e);
-      }
-    }
-
-    if (!success) {
-      const sportsList = [
-        'football', 'basketball', 'tennis', 'motor-sports', 'fight',
-        'cricket', 'rugby', 'afl', 'baseball', 'hockey',
-        'american-football', 'golf', 'billiards', 'darts', 'other'
-      ];
-
-      const fetchPromises = sportsList.map(async (sp) => {
-        const url = `https://streamed.pk/api/matches/${sp}`;
-        const res = await fetch(url, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          },
-          next: { revalidate: 60 },
-        });
-        if (res.ok) {
-          const json = await res.json();
-          return Array.isArray(json) ? json : [];
-        }
-        return [];
-      });
-
-      const results = await Promise.allSettled(fetchPromises);
-      for (const r of results) {
-        if (r.status === 'fulfilled') {
-          matches.push(...r.value);
-        }
-      }
-    }
-
-    return (
-      matches.find((m) =>
-        m && m.sources?.some((s) => s.source === sourceParam && s.id === idParam)
-      ) || null
+    // Try fetching the specific stream by key
+    const res = await fetch(
+      `${BASE_SF}/api/v1/streams/${encodeURIComponent(streamKey)}`,
+      {
+        next: { revalidate: 60 },
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; FLStreams/2.0)',
+          Accept: 'application/json',
+          Referer: 'https://streamfree.top/',
+        },
+      },
     );
+
+    if (res.ok) {
+      const stream: StreamFreeStream = await res.json();
+      return stream;
+    }
+
+    // Fallback: search in category stream list
+    if (category) {
+      const catRes = await fetch(
+        `${BASE_SF}/api/v1/streams?category=${encodeURIComponent(category)}`,
+        {
+          next: { revalidate: 60 },
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; FLStreams/2.0)',
+            Accept: 'application/json',
+            Referer: 'https://streamfree.top/',
+          },
+        },
+      );
+      if (catRes.ok) {
+        const data = await catRes.json();
+        const found = (data.streams ?? []).find(
+          (s: StreamFreeStream) => s.stream_key === streamKey,
+        );
+        if (found) return found;
+      }
+    }
+
+    return null;
   } catch (e) {
     console.error('[getMatchDetails]', e);
     return null;
   }
 }
 
-// Convert id slug to clean title fallback (e.g. 'real-madrid-vs-barcelona' -> 'Real Madrid Vs Barcelona')
+// Convert id slug to clean title fallback
 function formatFallbackTitle(id: string): string {
   return id
     .split('-')
@@ -107,7 +87,7 @@ export async function generateMetadata({
   const { source, id } = await params;
   const match = await getMatchDetails(source, id);
 
-  const cleanTitle = match?.title || formatFallbackTitle(id);
+  const cleanTitle = match?.name || formatFallbackTitle(id);
   const sportLabel = match?.category ? ` - Streaming ${match.category}` : '';
 
   return {
@@ -135,7 +115,7 @@ export async function generateMetadata({
   };
 }
 
-// ── JSON-LD SportsEvent Schema ─
+// ── JSON-LD SportsEvent Schema ─────────────────────────────────────────────────
 function SportsEventSchema({
   match,
   source,
@@ -145,9 +125,9 @@ function SportsEventSchema({
   source: string;
   id: string;
 }) {
-  const cleanTitle = match?.title || formatFallbackTitle(id);
-  const dateIso = match?.date
-    ? new Date(match.date > 9999999999 ? match.date : match.date * 1000).toISOString()
+  const cleanTitle = match?.name || formatFallbackTitle(id);
+  const dateIso = match?.match_timestamp
+    ? new Date(match.match_timestamp * 1000).toISOString()
     : new Date().toISOString();
 
   const schema = {
@@ -166,19 +146,6 @@ function SportsEventSchema({
       name: 'FL Streams',
       url: 'https://www.flstreams.my.id',
     },
-    competitor:
-      match?.teams?.home?.name && match?.teams?.away?.name
-        ? [
-            {
-              '@type': 'SportsTeam',
-              name: match.teams.home.name,
-            },
-            {
-              '@type': 'SportsTeam',
-              name: match.teams.away.name,
-            },
-          ]
-        : undefined,
   };
 
   return (
@@ -190,19 +157,23 @@ function SportsEventSchema({
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  football: 'Sepak Bola · Liga Populer',
-  soccer: 'Sepak Bola · Liga Populer',
-  basketball: 'Basket · Liga Populer',
-  tennis: 'Tenis · Liga Populer',
-  cricket: 'Kriket · Liga Populer',
-  boxing: 'Tinju/MMA · Liga Populer',
-  motorsport: 'Motorsport · Liga Populer',
+  soccer: 'Sepak Bola',
+  football: 'Sepak Bola',
+  basketball: 'Basket',
+  tennis: 'Tenis',
+  cricket: 'Kriket',
+  combat: 'Tinju / MMA',
+  boxing: 'Tinju / MMA',
+  racing: 'Motorsport',
+  motorsport: 'Motorsport',
+  hockey: 'Hoki',
+  baseball: 'Baseball',
 };
 
 function getCategoryLabel(category?: string): string {
   if (!category) return 'Olahraga';
   const clean = category.toLowerCase();
-  return CATEGORY_LABELS[clean] ?? `${category.charAt(0).toUpperCase() + category.slice(1)} · Liga Populer`;
+  return CATEGORY_LABELS[clean] ?? `${category.charAt(0).toUpperCase() + category.slice(1)}`;
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -211,9 +182,12 @@ export default async function WatchPage({
 }: {
   params: Promise<{ source: string; id: string }>;
 }) {
+  // `source` = StreamFree category (e.g. "soccer")
+  // `id`     = stream_key (e.g. "ghana-vs-england")
   const { source, id } = await params;
   const match = await getMatchDetails(source, id);
-  const cleanTitle = match?.title || formatFallbackTitle(id);
+  const cleanTitle = match?.name || formatFallbackTitle(id);
+  const embedUrl = match?.embed_url ?? `${BASE_SF}/embed/${source}/${id}`;
 
   return (
     <>
@@ -234,7 +208,7 @@ export default async function WatchPage({
             Kembali ke Beranda
           </Link>
           <div className="bg-slate-900 border border-slate-800 text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm capitalize">
-            {getCategoryLabel(match?.category)}
+            {getCategoryLabel(match?.category ?? source)}
           </div>
         </div>
 
@@ -244,6 +218,8 @@ export default async function WatchPage({
           matchTitle={cleanTitle}
           sourceParam={source}
           idParam={id}
+          embedUrl={embedUrl}
+          league={match?.league}
         />
       </main>
     </>
