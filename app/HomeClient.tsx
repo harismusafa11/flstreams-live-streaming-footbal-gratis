@@ -117,7 +117,17 @@ export default function HomeClient() {
   });
 
   const liveMatches = filtered.filter(isMatchLive);
-  const scheduledMatches = filtered.filter((m) => !isMatchLive(m));
+  const scheduledMatches = filtered.filter((m) => {
+    if (isMatchLive(m)) return false;
+    
+    const nowSec = Math.floor(Date.now() / 1000);
+    const fiveHoursAgo = nowSec - 5 * 3600;
+    const fiveDaysAhead = nowSec + 5 * 24 * 3600;
+    
+    // Hanya tampilkan jadwal yang belum lewat lebih dari 5 jam
+    // dan maksimal 5 hari ke depan
+    return m.date >= fiveHoursAgo && m.date <= fiveDaysAhead;
+  });
 
   return (
     <div>
