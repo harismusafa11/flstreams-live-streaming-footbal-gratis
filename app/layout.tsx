@@ -40,6 +40,9 @@ export const metadata: Metadata = {
     google: 'adVNAT7PjGq7dJJbIR7GlHLhvLsSbcb8a3nZAjSLIg0',
     yandex: '41aee8e803292b1d',
   },
+  other: {
+    monetag: '837a5b07c5c07a7990a507fcdf8714dd',
+  },
 };
 
 export default function RootLayout({
