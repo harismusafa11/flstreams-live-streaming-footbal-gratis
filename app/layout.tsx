@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist } from 'next/font/google';
+import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 
@@ -52,6 +53,14 @@ export default function RootLayout({
     <html lang="id" className={`${geist.variable} h-full`}>
       <body className="min-h-full antialiased bg-[#090d16] text-slate-200">
         {children}
+        <Script
+          id="monetag-tag"
+          src="https://quge5.com/88/tag.min.js"
+          data-zone="263027"
+          async
+          data-cfasync="false"
+          strategy="afterInteractive"
+        />
         <Analytics />
       </body>
     </html>
